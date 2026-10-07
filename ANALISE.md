@@ -443,3 +443,5 @@ Para `apply_discount(200, 10)` → `200 - (200 * 10 / 100) = 200 - 20 = 180` ✅
 O teste `test_apply_discount` deve passar agora, já que `180 == 180`.
 
 >> CONTEXTO: A função `apply_discount` foi corrigida para calcular o desconto percentual corretamente e agora funciona como esperado. O teste que estava falhando deve passar com a nova implementação.
+
+>> GUARDRAIL: A execução demonstra concretamente a ausência de um guardrail. Na Iteração 4, o agente modifica `inventory.py` e recebe como observação apenas que o arquivo foi editado. Na Iteração 5, ele afirma que o teste "deve passar", mas não existe nenhuma chamada para executar o teste. Como não houve uma nova chamada de tool, o loop é encerrado. Assim, o agente considera a tarefa concluída com base no seu próprio raciocínio, sem uma verificação externa de que o objetivo foi alcançado.

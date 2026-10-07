@@ -1,4 +1,4 @@
-## TENTATIVA 1
+# TENTATIVA 1
 
 (.venv) naiara@naiara-aspire:~/Documentos/UFCG-2026.2/devia/atv3/atividade-anatomia-agentes$ python3 agent.py 
 
@@ -194,3 +194,252 @@ Traceback (most recent call last):
   File "/home/naiara/Documentos/UFCG-2026.2/devia/atv3/atividade-anatomia-agentes/.venv/lib/python3.11/site-packages/openai/_base_client.py", line 1213, in request
     raise self._make_status_error_from_response(err.response) from None
 openai.RateLimitError: Error code: 429 - {'error': {'message': "Request too large for model `qwen/qwen3.8-27b` in organization `org_01m48wtg9hesh9sa42j5kak7yk` service tier `on_demand` on output tokens perminute (OTPM): Limit 1000, Requested 1518. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing", 'type': 'tokens', 'code': 'rate_limit_exceeded'}}
+
+# TENTATIVA 2
+
+You are a coding assistant whose goal it is to help us solve coding tasks.
+You can perform actions by emitting a single command line in exactly this format, and nothing else on that line:
+
+tool: NAME({"arg": "value"})
+
+Do not use JSON function-calling, a <tool_call> tag, or any other structured tool-call format your training may default to.
+The ONLY format the system running you understands is the plain text line above.
+
+Available commands:
+
+TOOL
+===
+    Name: read_file
+    Description: 
+    Gets the full content of a file provided by the user.
+    :param filename: The name of the file to read.
+    :return: The full content of the file.
+    
+    Signature: (filename: str) -> Dict[str, Any]
+    
+===============
+TOOL
+===
+    Name: list_files
+    Description: 
+    Lists the files in a directory provided by the user.
+    :param path: The path to a directory to list files from.
+    :return: A list of files in the directory.
+    
+    Signature: (path: str) -> Dict[str, Any]
+    
+===============
+TOOL
+===
+    Name: edit_file
+    Description: 
+    Replaces first occurrence of old_str with new_str in file. If old_str is empty,
+    create/overwrite file with new_str.
+    :param path: The path to the file to edit.
+    :param old_str: The string to replace.
+    :param new_str: The string to replace with.
+    :return: A dictionary with the path to the file and the action taken.
+    
+    Signature: (path: str, old_str: str, new_str: str) -> Dict[str, Any]
+    
+===============
+
+
+Example of a correct response when you want to read a file named 'notes.txt':
+tool: read_file({"filename": "notes.txt"})
+
+Use compact single-line JSON with double quotes. After receiving a tool_result(...) message, continue the task using the same format when another action is needed.
+If no action is needed, respond in plain prose.
+
+You::encontre e conserte o bug baseado no teste que está falhando em test_inventory.py
+
+------------------------------
+ITERATION: 1
+------------------------------
+
+THOUGHT:
+Vou começar listando os arquivos para encontrar o teste falhando e o arquivo de inventário.
+
+>> THOUGHT: O modelo está planejando inspecionar os arquivos de teste e o código principal para identificar o bug que está causando a falha no teste.
+
+tool: list_files({"path": "."})
+
+>> TOOLS / ACI: O modelo solicitou a ferramenta `list_files` usando um formato textual e o agente interpreta a solicitação por meio de uma chamada de função e não de forma nativa.
+
+ACTION:
+Tool: list_files
+Arguments: {"path": "."}
+
+>> LOOP: Esta é a primeira iteração do loop interno do agente.
+
+OBSERVATION:
+{
+  "path": "/home/naiara/Documentos/UFCG-2026.2/devia/atv3/atividade-anatomia-agentes",
+  "files": [
+    {
+      "filename": ".git",
+      "type": "dir"
+    },
+    {
+      "filename": ".venv",
+      "type": "dir"
+    },
+    {
+      "filename": "inventory.py",
+      "type": "file"
+    },
+    {
+      "filename": "requirements.txt",
+      "type": "file"
+    },
+    {
+      "filename": "test_inventory.py",
+      "type": "file"
+    },
+    {
+      "filename": "README.md",
+      "type": "file"
+    },
+    {
+      "filename": ".env",
+      "type": "file"
+    },
+    {
+      "filename": ".gitignore",
+      "type": "file"
+    },
+    {
+      "filename": "ANALISE.md",
+      "type": "file"
+    },
+    {
+      "filename": "agent.py",
+      "type": "file"
+    }
+  ]
+}
+
+>> CONTEXTO: O agente listou os arquivos do diretorio atual.
+
+------------------------------
+ITERATION: 2
+------------------------------
+
+THOUGHT:
+Encontrei os arquivos relevantes. Vou ler o teste, o inventário e a análise para entender o bug.
+
+>> THOUGHT: O modelo está planejando inspecionar os arquivos de teste e o código principal para identificar o bug que está causando a falha no teste.
+
+tool: read_file({"filename": "test_inventory.py"})
+
+>> TOOLS / ACI: O modelo solicitou a ferramenta `read_file` usando um formato textual.
+
+ACTION:
+Tool: read_file
+Arguments: {"filename": "test_inventory.py"}
+/home/naiara/Documentos/UFCG-2026.2/devia/atv3/atividade-anatomia-agentes/test_inventory.py
+
+>> LOOP: Nesta segunda iteração, o LLM recebeu o contexto produzido pela iteração anterior e decidiu realizar uma nova ação.
+
+OBSERVATION:
+{
+  "file_path": "/home/naiara/Documentos/UFCG-2026.2/devia/atv3/atividade-anatomia-agentes/test_inventory.py",
+  "content": "from inventory import apply_discount\n\n\ndef test_apply_discount():\n    assert apply_discount(200, 10) == 180\n"
+}
+
+>> CONTEXTO: Encontrou o teste que está falhando. O teste espera que `apply_discount(200, 10)` retorne `180`, ou seja, um desconto de 10% sobre 200.
+
+------------------------------
+ITERATION: 3
+------------------------------
+
+THOUGHT:
+O teste espera `apply_discount(200, 10) == 180` (200 com 10% de desconto dá 180). Vou ler o arquivo `inventory.py` para ver a implementação.
+
+>> THOUGHT: O modelo está planejando ler o arquivo `inventory.py` para entender a implementação da função `apply_discount`.
+
+tool: read_file({"filename": "inventory.py"})
+
+>> TOOLS / ACI: O modelo solicitou a ferramenta `read_file` usando um formato textual.
+
+ACTION:
+Tool: read_file
+Arguments: {"filename": "inventory.py"}
+/home/naiara/Documentos/UFCG-2026.2/devia/atv3/atividade-anatomia-agentes/inventory.py
+
+>> LOOP: Nesta terceira iteração, o LLM recebeu o contexto produzido pela iteração anterior e decidiu realizar uma nova ação.
+
+OBSERVATION:
+{
+  "file_path": "/home/naiara/Documentos/UFCG-2026.2/devia/atv3/atividade-anatomia-agentes/inventory.py",
+  "content": "def apply_discount(price, percent):\n    \"\"\"Aplica um desconto percentual ao preço.\"\"\"\n    return price - percent\n"
+}
+
+>> CONTEXTO: A função `apply_discount` está subtraindo o valor do desconto diretamente do preço, em vez de calcular o desconto percentual. Isso explica por que o teste falha, pois `apply_discount(200, 10)` retorna `190` em vez de `180`.
+
+------------------------------
+ITERATION: 4
+------------------------------
+
+THOUGHT:
+O bug está claro. A função `apply_discount` faz `price - percent`, que para `200` e `10` daria `190`, mas o teste espera `180` (o desconto de 10% deve ser calculado sobre o preço). Vou corrigir a fórmula para calcular o valor do desconto como `price * percent / 100`.
+
+>> THOUGHT: A correção envolve calcular o desconto corretamente e subtrair do preço.
+
+tool: edit_file({"path": "inventory.py", "old_str": "    return price - percent", "new_str": "    discount = price * percent / 100\n    return price - discount"})
+
+>> TOOLS / ACI: O modelo solicitou a ferramenta `edit_file` usando um formato textual.
+
+ACTION:
+Tool: edit_file
+Arguments: {"path": "inventory.py", "old_str": "    return price - percent", "new_str": "    discount = price * percent / 100\n    return price - discount"}
+
+>> LOOP: Nesta quarta iteração, o LLM recebeu o contexto produzido pela iteração anterior e decidiu realizar uma nova ação.
+
+OBSERVATION:
+{
+  "path": "/home/naiara/Documentos/UFCG-2026.2/devia/atv3/atividade-anatomia-agentes/inventory.py",
+  "action": "edited"
+}
+
+>> CONTEXTO: A função `apply_discount` foi corrigida para calcular o desconto percentual corretamente.
+
+------------------------------
+ITERATION: 5
+------------------------------
+
+THOUGHT:
+Corrigido! O problema era que a função `apply_discount` subtraiava o valor da porcentagem diretamente do preço (`price - percent`), em vez de calcular o desconto percentual sobre o preço.
+
+**Antes:**
+```python
+return price - percent
+```
+Para `apply_discount(200, 10)` → `200 - 10 = 190` ❌
+
+**Depois:**
+```python
+discount = price * percent / 100
+return price - discount
+```
+Para `apply_discount(200, 10)` → `200 - (200 * 10 / 100) = 200 - 20 = 180` ✅
+
+O teste `test_apply_discount` deve passar agora, já que `180 == 180`.
+Assistant:: Corrigido! O problema era que a função `apply_discount` subtraiava o valor da porcentagem diretamente do preço (`price - percent`), em vez de calcular o desconto percentual sobre o preço.
+
+**Antes:**
+```python
+return price - percent
+```
+Para `apply_discount(200, 10)` → `200 - 10 = 190` ❌
+
+**Depois:**
+```python
+discount = price * percent / 100
+return price - discount
+```
+Para `apply_discount(200, 10)` → `200 - (200 * 10 / 100) = 200 - 20 = 180` ✅
+
+O teste `test_apply_discount` deve passar agora, já que `180 == 180`.
+
+>> CONTEXTO: A função `apply_discount` foi corrigida para calcular o desconto percentual corretamente e agora funciona como esperado. O teste que estava falhando deve passar com a nova implementação.
